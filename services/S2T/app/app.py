@@ -1,3 +1,4 @@
+import shutil
 import sys
 
 sys.path.append('/app/punctuation-restoration/src/')
@@ -91,6 +92,24 @@ def get_recognition(process_id):
 @flask_app.route('/recognize/<string:filename>')
 def run_recognition(filename):
     res = recognize.delay(filename)
+    return json.dumps({"ok": True, "error": None, "task_id": res.id})
+
+
+def download_file(url):
+    local_filename = url.split('/')[-1]
+    with requests.get(url, stream=True) as r:
+        with open(local_filename, 'wb') as f:
+            shutil.copyfileobj(r.raw, f)
+    return local_filename
+
+
+@flask_app.route('/recognize/url/<string:url>')
+def recognize_from_url(url):
+    try:
+        filename = download_file(url)
+    except:
+        return json.dumps({"ok": False, "error": "Error in file download"})
+    res = recognize.delay(url)
     return json.dumps({"ok": True, "error": None, "task_id": res.id})
 
 
