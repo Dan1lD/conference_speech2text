@@ -1,7 +1,8 @@
 from io import BytesIO
-import sounddevice as sd
 
+import sounddevice as sd
 from scipy.io.wavfile import write
+
 sr = 16000
 duration = 10
 

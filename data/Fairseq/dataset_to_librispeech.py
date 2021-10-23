@@ -1,7 +1,6 @@
-import tarfile
-import sys
 import os
-
+import sys
+import tarfile
 
 nbpe = 5000
 bpemode = "unigram"

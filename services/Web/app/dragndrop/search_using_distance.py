@@ -1,6 +1,7 @@
-from fuzzywuzzy import process
 import json
 from typing import List
+
+from fuzzywuzzy import process
 
 with open('/app/dragndrop/data.json', 'r') as read_file:
     data = json.load(read_file)

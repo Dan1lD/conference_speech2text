@@ -1,19 +1,21 @@
+import codecs
+import os
+from hashlib import sha256
+from os import remove
+from os.path import exists, splitext
+from shutil import copyfile
+
+import matplotlib.pyplot as plt
+import requests
+from django.conf import settings
+from django.core.files.storage import default_storage
 from django.http import HttpResponse
 from django.shortcuts import render
-from django.core.files.storage import default_storage
 from django.views.decorators.csrf import csrf_exempt
 from dragndrop.models import AudioRecord
-from hashlib import sha256
-from os.path import splitext, exists
-from os import remove
-import requests
-import codecs
-from shutil import copyfile
-from django.conf import settings
-from wordcloud import WordCloud, STOPWORDS
-import matplotlib.pyplot as plt
 from dragndrop.search_using_distance import link
-import os
+from wordcloud import STOPWORDS, WordCloud
+
 os.environ['NO_PROXY'] = '127.0.0.1'
 
 # Create your views here.

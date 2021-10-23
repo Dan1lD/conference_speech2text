@@ -1,12 +1,13 @@
 import io
+import itertools
 import os
-from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
-from sklearn.metrics.pairwise import cosine_similarity
-from nltk.stem.snowball import SnowballStemmer
 from collections import Counter
+
 import numpy as np
 import sklearn
-import itertools
+from nltk.stem.snowball import SnowballStemmer
+from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
 
 stemmer = SnowballStemmer("russian") 
 os.environ["KERAS_BACKEND"] = "tensorflow"

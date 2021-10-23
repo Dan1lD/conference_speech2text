@@ -1,17 +1,16 @@
-import os
-from get_keywords import create_keywords
-from sentence_transformers import SentenceTransformer
 import json
-import time
-from flask import Flask
+import os
+
+import requests
 from celery import Celery
 from celery.result import AsyncResult
+from flask import Flask
+from get_keywords import create_keywords
 from nltk.stem.snowball import SnowballStemmer
-import requests
-
+from sentence_transformers import SentenceTransformer
 
 sentence_transformer_model = SentenceTransformer('/app/paraphrase-xlm-r-multilingual-v1')
-stemmer = SnowballStemmer("russian") 
+stemmer = SnowballStemmer("russian")
 
 
 def make_celery(app):
@@ -50,7 +49,6 @@ def calculate_and_save_keywords(filename):
     return keywords
 
 
-
 @flask_app.route('/getKeywords/<string:process_id>')
 def get_keywords(process_id):
     res = AsyncResult(process_id, app=celery)
@@ -70,6 +68,7 @@ def run_keywords(filename):
 def run_raw_keywords():
     res = calculate_and_save_raw_keywords.delay()
     return json.dumps({"ok": True, "error": None, "task_id": res.id})
+
 
 if __name__ == "__main__":
     flask_app.run(host="0.0.0.0", port=8080)

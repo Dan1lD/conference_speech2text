@@ -1,15 +1,17 @@
 import sys
+
 sys.path.append('/app/punctuation-restoration/src/')
 
-from vosk import Model, KaldiRecognizer, SetLogLevel
-import wave
-import os
 import json
-from flask import Flask
+import os
+import wave
+
+import funct
+import requests
 from celery import Celery
 from celery.result import AsyncResult
-import requests
-import funct
+from flask import Flask
+from vosk import KaldiRecognizer, Model, SetLogLevel
 
 model = Model("/app/model")
 
@@ -39,15 +41,17 @@ flask_app.config.update(
 
 celery = make_celery(flask_app)
 
+
 @celery.task(name="tasks.recognize")
 def recognize(filename):
     fn = filename.split('.')[0]
-    os.system(f"ffmpeg -i /audio/{filename} -acodec pcm_s16le -ac 1 -ar 16000 /audio/wav/{fn}.wav -y -af 'apad=pad_dur=10'")
+    os.system(
+        f"ffmpeg -i /audio/{filename} -acodec pcm_s16le -ac 1 -ar 16000 /audio/wav/{fn}.wav -y -af 'apad=pad_dur=10'")
 
     wf = wave.open(f'/audio/wav/{fn}.wav', "rb")
     if wf.getnchannels() != 1 or wf.getsampwidth() != 2 or wf.getcomptype() != "NONE":
         return json.dumps({"ok": False, "error": "Audio file must be WAV format mono PCM."})
-    
+
     rec = KaldiRecognizer(model, wf.getframerate())
 
     result = ""
@@ -103,6 +107,7 @@ def run_recognition(filename):
 def run_raw_keywords():
     res = calculate_and_save_raw_keywords.delay()
     return json.dumps({"ok": True, "error": None, "task_id": res.id})
+
 
 if __name__ == "__main__":
     flask_app.run(host="0.0.0.0", port=8000)
