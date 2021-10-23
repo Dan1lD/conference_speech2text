@@ -1,0 +1,118 @@
+{% load static %}
+
+<link rel="stylesheet" type="text/css" href="{% static 'dragndrop/css/dragndrop.css' %}">
+
+<div id="drop-area">
+  <div id="drop-area-top">
+    <form class="my-form">
+      <p>Загрузите wav файлы</p>
+      <input type="file" id="fileElem" multiple accept="audio/wav" onchange="handleFiles(this.files)">
+      <label class="button" for="fileElem">Выберите файлы</label>
+    </form>
+    <progress id="progress-bar" max=100 value=0></progress>
+  </div>
+  <div id="gallery"></div>
+</div>
+
+<script>
+// ************************ Drag and drop ***************** //
+let dropArea = document.getElementById("drop-area")
+
+// Prevent default drag behaviors
+;['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+  dropArea.addEventListener(eventName, preventDefaults, false)   
+  document.body.addEventListener(eventName, preventDefaults, false)
+})
+
+// Highlight drop area when item is dragged over it
+;['dragenter', 'dragover'].forEach(eventName => {
+  dropArea.addEventListener(eventName, highlight, false)
+})
+
+;['dragleave', 'drop'].forEach(eventName => {
+  dropArea.addEventListener(eventName, unhighlight, false)
+})
+
+// Handle dropped files
+dropArea.addEventListener('drop', handleDrop, false)
+
+function preventDefaults (e) {
+  e.preventDefault()
+  e.stopPropagation()
+}
+
+function highlight(e) {
+  dropArea.classList.add('highlight')
+}
+
+function unhighlight(e) {
+  dropArea.classList.remove('active')
+}
+
+function handleDrop(e) {
+  var dt = e.dataTransfer
+  var files = dt.files
+
+  handleFiles(files)
+}
+
+let uploadProgress = []
+let progressBar = document.getElementById('progress-bar')
+
+function initializeProgress(numFiles) {
+  progressBar.value = 0
+  uploadProgress = []
+
+  for(let i = numFiles; i > 0; i--) {
+    uploadProgress.push(0)
+  }
+}
+
+function updateProgress(fileNumber, percent) {
+  uploadProgress[fileNumber] = percent
+  let total = uploadProgress.reduce((tot, curr) => tot + curr, 0) / uploadProgress.length
+  console.debug('update', fileNumber, percent, total)
+  progressBar.value = total
+}
+
+function handleFiles(files) {
+  files = [...files]
+  initializeProgress(files.length)
+  files.forEach(uploadFile)
+//  files.forEach(previewFile)
+}
+
+function previewFile(file) {
+  let img = document.createElement('img')
+  img.src = '/showImg?actualFileName=wav.png'
+  document.getElementById('gallery').appendChild(img)
+}
+
+function uploadFile(file, i) {
+  var url = '/uploadFile'
+  var xhr = new XMLHttpRequest()
+  var formData = new FormData()
+  xhr.open('POST', url, true)
+  xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest')
+
+  // Update progress (can be used to show progress indicator)
+  xhr.upload.addEventListener("progress", function(e) {
+    updateProgress(i, (e.loaded * 100.0 / e.total) || 100)
+  })
+
+  xhr.addEventListener('readystatechange', function(e) {
+    if (xhr.readyState == 4 && xhr.status == 200) {
+      updateProgress(i, 100) // <- Add this
+      previewFile()
+      location = location
+    }
+    else if (xhr.readyState == 4 && xhr.status != 200) {
+      // Error. Inform the user
+      alert(":(\nФайл не был загружен. Возможно, он уже загружен. Попробуйте снова или спросите администратора.")
+    }
+  })
+
+  formData.append('file', file)
+  xhr.send(formData)
+}
+</script>

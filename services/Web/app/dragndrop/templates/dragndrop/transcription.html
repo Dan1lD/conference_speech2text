@@ -1,0 +1,70 @@
+{% extends 'dragndrop/layout.html' %}
+{% load static %}
+
+{% block title %}{{ audioRecord.title }}{% endblock %}
+
+{% block menu %}
+    <div> 
+        <a class="menu-links" href="/"> Главная </a>
+    </div>
+    <div> 
+        <a class="menu-links" href="#"> Выйти </a>
+    </div>
+{% endblock %}
+
+{% block content %}
+    <script src="{% static 'dragndrop/js/audioFile.js' %}"></script>
+
+    <div class="container">
+
+		<!--- ABOUT --->
+	            <div class="row" style="padding-top: 5em;">
+	                <div class="col-xs-12">
+                       <div class="lg-col-bg">
+                            <div class="lg-col-ttl2" style="font-size: 4em;"> 
+                                {{ audioRecord.title }} 
+                                <a class="delete-record" onclick="deleteAudio('/deleteAudio?hashCode={{ audioRecord.hashCode }}', '{{ audioRecord.hashCode }}')">
+                                    <img src="{% static 'dragndrop/img/bin.png' %}" style="height: 30px;">
+                                </a>
+                            </div>
+                            <div class="lg-col-wrt2" style="padding-top: 1%; padding-bottom: 0%;"> <b>Файл записи:</b> 
+                                {{ audioRecord.audioFileName }} 
+                                <a href="/downloadFile?fileName={{ audioRecord.audioFileName }}&actualFileName={{ audioRecord.actualFileName }}" download>
+                                    <img src="{% static 'dragndrop/img/download.png' %}" style="height: 20px;">
+                                </a>
+                            </div>
+                            <div class="lg-col-wrt2" style="padding-top: 1%; padding-bottom: 0%;"> <b>Дата загрузки:</b> {{ audioRecord.creationDate }} </div>
+                            <div class="lg-col-wrt2" style="padding-top: 1%; padding-bottom: 1.5%;"> <b>Ключевые слова:</b> {{ audioRecord.keyWords }} </div>
+                            <div class="lg-col-wrt2" style="padding-top: 1.5%;">
+                                <audio controls>
+                                    <source src="/downloadFile?fileName={{ audioRecord.audioFileName }}&actualFileName={{ audioRecord.actualFileName }}" type="audio/wav">
+                                    Ваш браузер не поддерживает воспроизведение wav.
+                                </audio><br>
+                                <b>Текст из записи:</b>
+                                <a href="/downloadFile?fileName={{ audioRecord.title }}{{ ".txt" }}&actualFileName={{ audioRecord.actualTranscriptionFileName }}" download>
+                                    <img src="{% static 'dragndrop/img/download.png' %}" style="height: 20px;">
+                                </a>
+                                <br> {{ transcriptionText }} 
+                            </div>							
+                       </div>
+                    </div>
+				</div>
+		<!--- THE END ABOUT CLIENT --->	
+
+        <!--- ALL PROJECT BUTTON --->				
+	            <div class="row">
+	                <div class="col-md-12 col-xs-12">
+                       <div class="allprojects-lgs-bg" >
+				           <a class="btn-allprojects" href="/" role="button">ВЕРНУТЬСЯ К ЗАПИСЯМ</a>				
+                       </div>
+	                </div>
+				</div>								
+        <!--- THE END ALL PROJECT BUTTON --->
+    </div>		
+
+{% endblock %}
+
+{% block footer %}
+    <a href="/"> <div class="ftr-lnk"> Главная </div> </a>
+    <a href="#"> <div class="ftr-lnk"> Выйти </div> </a>
+{% endblock %}

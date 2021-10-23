@@ -1,0 +1,82 @@
+  a {
+    color: #369;
+  }
+  .note {
+    width: 500px;
+    margin: 50px auto;
+    font-size: 1.1em;
+    color: #333;
+    text-align: justify;
+  }
+  #drop-area {
+    border: 2px dashed #ccc;
+    border-radius: 20px;
+    width: 500px;
+    margin: 50px auto;
+    padding: 20px;
+    -webkit-transition: all .5s ease;
+    -moz-transition: all .5s ease;
+    -ms-transition: all .5s ease;
+    -o-transition: all .5s ease;
+    transition: all .5s ease;
+    position: relative;
+    animation: animatebottom 3s;
+  }
+  #drop-area.highlight {
+    border-color: darkblue;
+  }
+  p {
+    margin-top: 0;
+  }
+  .my-form {
+    margin-bottom: 10px;
+  }
+  #gallery {
+    margin-top: 10px;
+  }
+  #gallery img {
+    width: 135px;
+    margin-bottom: 10px;
+    margin-right: 10px;
+    vertical-align: middle;
+  }
+  .button {
+    display: inline-block;
+    padding: 10px;
+    background: black;
+    cursor: pointer;
+    border: 1px solid black;
+    color: white;
+    vertical-align: center;
+  }
+  .button:hover {
+    background: #ddd;
+  }
+  #fileElem {
+    display: none;
+  }
+  #drop-area-top {
+      text-align: center;
+      -webkit-transition: all .5s ease;
+      -moz-transition: all .5s ease;
+      -ms-transition: all .5s ease;
+      -o-transition: all .5s ease;
+      transition: all .5s ease;
+      position: relative;
+      animation: animatebottom 3s;
+  }
+  @media screen and (max-width: 600px) {
+    .note {
+      width: 100%;
+      margin-left: 0;
+      margin-right: 0;
+    }
+    #drop-area {
+      width: 100%;
+      margin-left: 0;
+      margin-right: 0;
+    }
+    #gallery img {
+      width: 28%;
+    }
+  }

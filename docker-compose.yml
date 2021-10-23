@@ -1,0 +1,101 @@
+version: "2.3"
+services:
+  redis1:
+    image: redis:latest
+    hostname: redis
+    networks:
+      - backend  
+
+  redis2:
+    image: redis:latest
+    hostname: redis
+    networks:
+      - backend  
+
+  deeppavlov:
+    build: services/DeepPavlov 
+    # runtime: nvidia
+    volumes:
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+      - ./services/DeepPavlov/app/app.py:/app/app.py
+      - ./services/DeepPavlov/app/get_keywords.py:/app/get_keywords.py
+      - ./services/DeepPavlov/app/docker-entrypoint.sh:/app/docker-entrypoint.sh
+      - ./data/DeepPavlov:/data
+    command: >
+      sh -c "sh ./docker-entrypoint.sh"
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - LC_ALL=C.UTF-8
+      - LANG=C.UTF-8
+      - KERAS_BACKEND=tensorflow
+      - CELERY_BROKER=redis://redis1:6379/0
+      - CELERY_BACKEND=redis://redis1:6379/0
+    ports:
+      - "8080:8080"
+    networks:
+      - backend
+
+  speech_recognition:
+    build: services/S2T 
+    volumes:
+      - ./services/S2T/app/docker-entrypoint.sh:/app/docker-entrypoint.sh
+      - ./services/S2T/app/app.py:/app/app.py
+      - ./data/S2T/audio:/audio
+    command: >
+      sh -c "sh ./docker-entrypoint.sh"
+    environment:
+      - CELERY_BROKER=redis://redis2:6379/0
+      - CELERY_BACKEND=redis://redis2:6379/0
+    ports:
+      - "8000:8000"
+    networks:
+      - backend  
+
+  # fairseq_speech_detector:
+  #   build: services/Fairseq 
+  #   runtime: nvidia
+  #   volumes:
+  #     - /etc/timezone:/etc/timezone:ro
+  #     - /etc/localtime:/etc/localtime:ro
+  #     - ./services/Fairseq/app/main.py:/app/main.py
+  #     - ./services/Fairseq/app/docker-entrypoint.sh:/app/docker-entrypoint.sh
+  #     - ./data/Fairseq:/home/user/data
+  #   command: >
+  #     sh -c "sh ./docker-entrypoint.sh"
+  #   environment:
+  #     - NVIDIA_VISIBLE_DEVICES=all
+  #   ports:
+  #     - "50051:50051"
+
+  web:
+    build: services/Web
+    volumes:
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+      - ./data/Web/static_volume:/app/static
+      - ./data/S2T/audio:/audio
+      - ./data/DeepPavlov/:/texts
+    ports:
+      - 8001:8001
+    command: >
+      sh -c "sh ./docker-entrypoint.sh"
+    networks:
+      - backend
+
+  nginx:
+    image: nginx:1.15-alpine
+    ports:
+      - 80:80
+    command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
+    volumes:
+      - ./services/Web/nginx/:/etc/nginx/conf.d
+      - ./data/Web/static_volume:/mnt/static_files/
+    depends_on:
+      - web
+    networks:
+      - backend  
+
+networks:
+  backend:
+    driver: bridge

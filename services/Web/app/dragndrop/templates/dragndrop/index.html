@@ -1,0 +1,73 @@
+{% extends 'dragndrop/layout.html' %}
+{% load static %}
+
+{% block title %}Transcriptor{% endblock %}
+
+{% block menu %}
+    <div class="menu-links-on" > 
+        Главная
+    </div> 
+    <div> 
+        <a class="menu-links" href="#"> Выйти </a>
+    </div>
+{% endblock %}
+
+{% block content %}
+
+<div class="container">
+    <!--- HERO HEADER --->
+            <div class="row">
+                <div class="col-md-12">
+                   <div class="works-hero-bg" >
+                       <div class="main-img-holder">
+                            <img class="main-img" src="{% static 'dragndrop/img/soundWave.png' %}">
+                       </div>
+                        <h1 class="fade-anime-bottom"> Транскрипции </h1>
+                        <h2 class="fade-anime-bottom"> из записей голоса </h2>						
+                   </div>
+                </div>
+            </div>
+    <!--- THE END HERO HEADER --->				
+
+    {% include 'dragndrop/dragndropinclude.html' %}
+
+    <!--- WORK PAGE PROJECTS --->
+            <div class="row">
+                <script src="{% static 'dragndrop/js/audioFile.js' %}"></script>
+                {% for audioRecord in audioRecordsList reversed %}
+                    <div class="col-md-6 col-xs-12" id="{{ audioRecord.hashCode }}">
+                        <div class="prjct-bg" >					
+                                <a href="/transcription?hashCode={{ audioRecord.hashCode }}"> <img src="/downloadFile?fileName={{ audioRecord.title }}{{ ".png" }}&actualFileName={{ audioRecord.actualWordCloudFileName }}" alt="" class="img-prjct-wrk"> </a>
+                            <div class="prjct-wrt-left-wrk"> </div>
+                            <div class="shw-cs2">{{ audioRecord.title }}</div>
+                            <div class="shw-cs4">
+                                {% if audioRecord.transcriptionShort|length < 32 %}
+                                    {{ audioRecord.transcriptionShort }}
+                                {% else %}
+                                    {{ audioRecord.transcriptionShort }}...
+                                {% endif %} 
+                            </div>
+                            <div class="shw-cs">{{ audioRecord.creationDate }}</div>
+                            <div class="shw-cs">
+                                <a href="/downloadFile?fileName={{ audioRecord.audioFileName }}&actualFileName={{ audioRecord.actualFileName }}" download>Скачать .wav</a>
+                            </div>
+                            <div class="shw-cs">
+                                <a href="/downloadFile?fileName={{ audioRecord.title }}{{ ".txt" }}&actualFileName={{ audioRecord.actualTranscriptionFileName }}" download>Скачать .txt</a>
+                            </div>
+                            <div class="shw-cs">
+                                <a class="delete-record" onclick="deleteAudio('/deleteAudio?hashCode={{ audioRecord.hashCode }}', '{{ audioRecord.hashCode }}')">Удалить</a>
+                            </div>
+                        </div>					
+                    </div>
+                {% endfor %}
+            </div>
+            
+    </div>				
+    <!--- THE END WORK PAGE PROJECTS --->
+    
+{% endblock %}
+
+{% block footer %}
+    <div class="ftr-lnk-on"> Главная </div>
+    <a href="#"> <div class="ftr-lnk"> Выйти </div> </a>
+{% endblock %}
