@@ -43,10 +43,14 @@ celery = make_celery(flask_app)
 
 
 @celery.task(name="tasks.recognize")
-def recognize(filename):
-    fn = filename.split('.')[0]
+def recognize(filename_ext):
+    fn = filename_ext.split('.')[0]
+    if filename_ext.split('.')[-1] == "mp4":
+        os.system(f"ffmpeg -i /audio/{filename_ext} -vn -acodec libmp3lame -ac 2 -ab 160k -ar 48000 /audio/{fn}.mp3")
+        os.remove(f"/audio/{filename_ext}")
+        filename_ext = fn + ".mp3"
     os.system(
-        f"ffmpeg -i /audio/{filename} -acodec pcm_s16le -ac 1 -ar 16000 /audio/wav/{fn}.wav -y -af 'apad=pad_dur=10'")
+        f"ffmpeg -i /audio/{filename_ext} -acodec pcm_s16le -ac 1 -ar 16000 /audio/wav/{fn}.wav -y -af 'apad=pad_dur=10'")
 
     wf = wave.open(f'/audio/wav/{fn}.wav', "rb")
     if wf.getnchannels() != 1 or wf.getsampwidth() != 2 or wf.getcomptype() != "NONE":
@@ -70,7 +74,8 @@ def recognize(filename):
     {'result': [{'conf': 1.0, 'end': 0.51, 'start': 0.09, 'word': 'родион'}, {'conf': 1.0, 'end': 1.29, 'start': 0.51, 'word': 'потапыч'}, {'conf': 0.939228, 'end': 2.31, 'start': 1.5, 'word': 'высчитывал'}, {'conf': 1.0, 'end': 2.88, 'start': 2.31057, 'word': 'каждый'}, {'conf': 1.0, 'end': 3.21, 'start': 2.88, 'word': 'новый'}, {'conf': 1.0, 'end': 3.72, 'start': 3.21, 'word': 'вершок'}, {'conf': 1.0, 'end': 4.53, 'start': 3.72, 'word': 'углубления'}, {'conf': 1.0, 'end': 4.95, 'start': 4.8, 'word': 'и'}, {'conf': 1.0, 'end': 5.43, 'start': 4.95, 'word': 'давно'}, {'conf': 1.0, 'end': 6.24, 'start': 5.46, 'word': 'определил'}, {'conf': 1.0, 'end': 6.45, 'start': 6.27, 'word': 'про'}, {'conf': 1.0, 'end': 6.96, 'start': 6.45, 'word': 'себя'}], 'text': 'родион потапыч высчитывал каждый новый вершок углубления и давно определил про себя'}
     """
     result_text = funct.inference("weights.pt", full_text)
-    requests.post("http://nginx/uploadText", data={"text": result_text, "filename": filename, "extra_info": full_result})
+    requests.post("http://nginx/uploadText", data={"text": result_text, "filename": filename_ext, "extra_info": full_result})
+    os.remove(f"/audio/{filename_ext}")
     return result_text
 
 
