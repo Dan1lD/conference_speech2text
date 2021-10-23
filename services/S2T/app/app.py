@@ -54,37 +54,23 @@ def recognize(filename):
 
     rec = KaldiRecognizer(model, wf.getframerate())
 
-    result = ""
-
+    result_with_timestamps = []
     while True:
         data = wf.readframes(4000)
         if len(data) == 0:
             break
         if rec.AcceptWaveform(data):
             res = json.loads(rec.Result())
-            print(res)
-            result += ' ' + res['text']
+            result_with_timestamps.append(res)
 
-    print(result)
-    result_text = result
-
-    # paragraphs = ['']
-    # ps = ['а', 'но', 'или', 'что', 'как', 'чтобы', 'с', 'к', 'на', 'от', 'над', 'по', 'у', 'о', 'под', 'из', 'без', 'для', 'до', 'в', 'около', 'об', 'за']
-    # for i in range(1, len(result)):
-    #     if result[i]['start'] - result[i-1]['end'] < 1:
-    #         paragraphs[-1] += result[i-1]['word'] + ' '
-    #     else:
-    #         if result[i-1]['word'] in ps:
-    #             paragraphs[-1] += result[i-1]['word'] + ' '
-    #         else:
-    #             paragraphs[-1] += result[i-1]['word']
-    #             paragraphs.append('')
-    # paragraphs[-1] += result[len(result)-1]['word']
-    #
-    # result_text = " ".join(paragraphs)
-    result_text = funct.inference("weights.pt", result_text)
-
-    requests.post("http://nginx/uploadText", data={"text": result_text, "filename": filename})
+    full_result = json.loads(rec.FinalResult())
+    full_text = full_result.pop("text")
+    """
+    full_result in format:
+    {'result': [{'conf': 1.0, 'end': 0.51, 'start': 0.09, 'word': 'родион'}, {'conf': 1.0, 'end': 1.29, 'start': 0.51, 'word': 'потапыч'}, {'conf': 0.939228, 'end': 2.31, 'start': 1.5, 'word': 'высчитывал'}, {'conf': 1.0, 'end': 2.88, 'start': 2.31057, 'word': 'каждый'}, {'conf': 1.0, 'end': 3.21, 'start': 2.88, 'word': 'новый'}, {'conf': 1.0, 'end': 3.72, 'start': 3.21, 'word': 'вершок'}, {'conf': 1.0, 'end': 4.53, 'start': 3.72, 'word': 'углубления'}, {'conf': 1.0, 'end': 4.95, 'start': 4.8, 'word': 'и'}, {'conf': 1.0, 'end': 5.43, 'start': 4.95, 'word': 'давно'}, {'conf': 1.0, 'end': 6.24, 'start': 5.46, 'word': 'определил'}, {'conf': 1.0, 'end': 6.45, 'start': 6.27, 'word': 'про'}, {'conf': 1.0, 'end': 6.96, 'start': 6.45, 'word': 'себя'}], 'text': 'родион потапыч высчитывал каждый новый вершок углубления и давно определил про себя'}
+    """
+    result_text = funct.inference("weights.pt", full_text)
+    requests.post("http://nginx/uploadText", data={"text": result_text, "filename": filename, "extra_info": full_result})
     return result_text
 
 
@@ -111,3 +97,20 @@ def run_raw_keywords():
 
 if __name__ == "__main__":
     flask_app.run(host="0.0.0.0", port=8000)
+
+
+"""
+ps = ['а', 'но', 'или', 'что', 'как', 'чтобы', 'с', 'к', 'на', 'от', 'над', 'по', 'у', 'о', 'под', 'из', 'без', 'для', 'до', 'в', 'около', 'об', 'за']
+for i in range(1, len(result)):
+    if result[i]['start'] - result[i-1]['end'] < 1:
+        paragraphs[-1] += result[i-1]['word'] + ' '
+    else:
+        if result[i-1]['word'] in ps:
+            paragraphs[-1] += result[i-1]['word'] + ' '
+        else:
+            paragraphs[-1] += result[i-1]['word']
+            paragraphs.append('')
+paragraphs[-1] += result[len(result)-1]['word']
+
+result_text = " ".join(paragraphs)
+"""
