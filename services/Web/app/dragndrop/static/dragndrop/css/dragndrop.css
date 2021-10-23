@@ -1,6 +1,13 @@
   a {
     color: #369;
   }
+  .works-hero-bg h1, .works-hero-bg h2 {
+    font-family: "PT Serif", sans-serif;
+  }
+  body {
+    font-family: "Golos Text", Arial, Helvetica, sans-serif;
+  }
+
   .note {
     width: 500px;
     margin: 50px auto;
@@ -9,7 +16,7 @@
     text-align: justify;
   }
   #drop-area {
-    border: 2px dashed #ccc;
+    border: 2px dashed #c22;
     border-radius: 20px;
     width: 500px;
     margin: 50px auto;
@@ -21,6 +28,7 @@
     transition: all .5s ease;
     position: relative;
     animation: animatebottom 3s;
+    font-family: "Golos Text", sans-serif;
   }
   #drop-area.highlight {
     border-color: darkblue;
@@ -43,14 +51,13 @@
   .button {
     display: inline-block;
     padding: 10px;
-    background: black;
+    background: #c22;
     cursor: pointer;
-    border: 1px solid black;
     color: white;
     vertical-align: center;
   }
   .button:hover {
-    background: #ddd;
+    background: #b41313;
   }
   #fileElem {
     display: none;

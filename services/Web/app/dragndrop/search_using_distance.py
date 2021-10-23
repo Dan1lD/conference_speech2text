@@ -3,8 +3,8 @@ from typing import List
 
 from fuzzywuzzy import process
 
-with open('/app/dragndrop/data.json', 'r') as read_file:
-    data = json.load(read_file)
+# with open('/app/dragndrop/data.json', 'r') as read_file:
+#     data = json.load(read_file)
 
 
 def f(s: str, l: List[str]):
