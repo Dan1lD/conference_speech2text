@@ -57,7 +57,7 @@ def uploadFile(request):
     title = splitext(file.name)[0]
     # requestiong transcription
     copyfile(filedir, "/audio/" + actualFileName)
-    requests.get(f"http://speech_recognition:8000/recognize/{actualFileName}")
+    v2t_response = requests.get(f"http://speech_recognition:8000/recognize/{actualFileName}")
 
     keyWords = "Обрабатывается"
     wordcloud = WordCloud(width = 1200, height = 650, random_state=1, background_color='white', colormap='bone', collocations=False, stopwords = STOPWORDS).generate(keyWords)
@@ -82,7 +82,9 @@ def uploadFile(request):
                                hashCode=hashCode,
                                keyWords=keyWords,
                                transcriptionShort=transcriptionShort, 
-                               title=title)
+                               title=title,
+                               v2t_response=v2t_response.text,
+                               )
     newTableLine.save()
     # return OK
     return HttpResponse("File upload successully")
@@ -111,7 +113,7 @@ def updloadUrl(request):
         return HttpResponse("Error in file download ", status=200)
     hash = filename.split(".")[0]
     copyfile(abs_path, "/audio/" + filename)
-    requests.get(f"http://speech_recognition:8000/recognize/{filename}")
+    v2t_response = requests.get(f"http://speech_recognition:8000/recognize/{filename}")
 
     keyWords = "Обрабатывается"
     wordcloud = WordCloud(width=1200, height=650, random_state=1, background_color='white', colormap='bone',
@@ -137,7 +139,9 @@ def updloadUrl(request):
                                hashCode=hash,
                                keyWords=keyWords,
                                transcriptionShort=transcriptionShort,
-                               title=raw_filename,)
+                               title=raw_filename,
+                               v2t_response=v2t_response.text,
+                               )
     newTableLine.save()
     # return OK
     return HttpResponse("File upload successully")
@@ -216,7 +220,8 @@ def transcription(request):
             return render(request, 'dragndrop/transcription.html', {
                 'audioRecord': audioRecord,
                 'transcriptionText': transcriptionText,
-                'SERVER_IP': settings.SERVER_IP
+                'SERVER_IP': settings.SERVER_IP,
+                'v2t': audioRecord.v2t_response,
             })
     return HttpResponse("Error 404: not found.")
 

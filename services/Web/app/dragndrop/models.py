@@ -13,6 +13,7 @@ class AudioRecord(models.Model):
     transcriptionShort = models.CharField(max_length=32)
     title = models.CharField(max_length=32)
     creationDate = models.DateTimeField(editable=False)
+    v2t_response = models.CharField(max_length=8000000)
     def __str__(self):
         return self.title
     def save(self, *args, **kwargs):
