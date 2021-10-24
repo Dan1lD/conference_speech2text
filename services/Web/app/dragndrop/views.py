@@ -8,6 +8,7 @@ from hashlib import sha256
 from os import remove
 from os.path import exists, splitext
 from shutil import copyfile
+import json
 
 import matplotlib.pyplot as plt
 import requests
@@ -222,6 +223,18 @@ def transcription(request):
                 'SERVER_IP': settings.SERVER_IP
             })
     return HttpResponse("Error 404: not found.")
+
+
+@csrf_exempt
+def saveText(request):
+    data = json.loads(request.body.decode("utf-8"))
+    text = data['text']
+    fileName = data['fileName']
+    txtFilePath = '/app/dragndrop/uploadedfiles/' + fileName
+    with open(txtFilePath, 'w') as file:
+        file.write(text)
+    return HttpResponse("OK")
+
 
 def deleteAudio(request):
     hashCode = request.GET['hashCode']

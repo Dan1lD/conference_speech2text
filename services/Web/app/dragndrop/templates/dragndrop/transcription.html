@@ -44,7 +44,24 @@
                                 <a href="/downloadFile?fileName={{ audioRecord.title }}{{ ".txt" }}&actualFileName={{ audioRecord.actualTranscriptionFileName }}" download>
                                     <img src="{% static 'dragndrop/img/download.png' %}" style="height: 20px;">
                                 </a>
-                                <br> {{ transcriptionText }} 
+                                <br>
+                                <script type="text/javascript">
+                                    function SaveText() {
+                                        alert("Охуеть! " + document.getElementById('text-field').value);
+                                        var xhr = new XMLHttpRequest();
+                                        xhr.open("POST", "/saveText", true);
+                                        xhr.setRequestHeader('Content-Type', 'application/json');
+                                        xhr.send(JSON.stringify({
+                                            "text": document.getElementById('text-field').value,
+                                            "fileName": "{{ audioRecord.actualTranscriptionFileName }}"
+                                        }));
+                                    }
+                                </script>
+                                <form action="javascript:SaveText();">
+                                  <textarea id="text-field" style="width: 100%;height: 400px;">{{ transcriptionText }}</textarea>
+                                  <br>
+                                  <input type="submit" value="Сохранить">
+                                </form>
                             </div>							
                        </div>
                     </div>

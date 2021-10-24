@@ -12,4 +12,5 @@ urlpatterns = [
     path('showImg', views.showImg),
     path('uploadText', views.uploadText),
     path('uploadKeywords', views.uploadKeywords),
+    path('saveText', views.saveText)
 ]
