@@ -1,6 +1,4 @@
-# Doctus
-
-Doctus service outlines russian language lectures from its audio recording. The service provides both web-site for end users and voice-to-text API. The project completely open source.
+# Conference speech2text
 
 ![Data scheme](https://habrastorage.org/webt/g5/e2/my/g5e2myra8yluuzxi2ii3vt-8jdu.png)
 

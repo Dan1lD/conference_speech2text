@@ -2,7 +2,6 @@ import io
 import itertools
 import os
 from collections import Counter
-
 import numpy as np
 import sklearn
 from nltk.stem.snowball import SnowballStemmer
@@ -14,15 +13,14 @@ os.environ["KERAS_BACKEND"] = "tensorflow"
 
         
 with io.open("/data/key_extractor/stop_words_russian.txt", "r", encoding="utf-8") as file:
-     stop_words = file.read()
+    stop_words = file.read()
 
 
 def max_sum_sim(doc_embedding, word_embeddings, words, candidates, top_n=10, nr_candidates=20):
     # Calculate distances and extract keywords
     distances = cosine_similarity(doc_embedding, word_embeddings)
-    distances_candidates = cosine_similarity(word_embeddings, 
-                                            word_embeddings)
-
+    distances_candidates = cosine_similarity(word_embeddings,
+                                             word_embeddings)
 
     # Get top_n words as candidates based on cosine similarity
     words_idx = list(distances.argsort()[0][-nr_candidates:])
@@ -40,7 +38,7 @@ def max_sum_sim(doc_embedding, word_embeddings, words, candidates, top_n=10, nr_
             candidate = combination
             min_sim = sim
 
-    return [words_vals[idx] for idx in candidate]
+    return [words_vals[idx] for idx in candidate] if candidate else ['DONE!']
 
 
 def create_keywords(sentence_transformer_model, doc, n_gram_range=(1, 1), top_n=20):

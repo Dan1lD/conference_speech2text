@@ -6,15 +6,21 @@ sys.path.append('/app/punctuation-restoration/src/')
 import json
 import os
 import wave
+import torch
 
-import funct
 import requests
 from celery import Celery
 from celery.result import AsyncResult
 from flask import Flask
 from vosk import KaldiRecognizer, Model
+from neuro_comma.src.neuro_comma.predict import RepunctPredictor
+from pathlib import Path
 
 model = Model("/app/model")
+predictor = RepunctPredictor(model_name='repunct-model-new',
+                             models_root=Path('neuro_comma/models'),
+                             model_weights='quantized_weights_ep6_9912.pt',
+                             quantization=True)
 
 
 def make_celery(app):
@@ -70,21 +76,21 @@ def recognize(filename_ext):
     rec = KaldiRecognizer(model, wf.getframerate())
 
     result_with_timestamps = []
+    full_result = ''
     while True:
         data = wf.readframes(4000)
         if len(data) == 0:
             break
         if rec.AcceptWaveform(data):
             res = json.loads(rec.Result())
-            result_with_timestamps.append(res)
+            print(res)
+            full_result += ' ' + res['text']
 
-    full_result = json.loads(rec.FinalResult())
-    full_text = full_result.pop("text")
-    """
-    full_result in format:
-    {'result': [{'conf': 1.0, 'end': 0.51, 'start': 0.09, 'word': 'родион'}, {'conf': 1.0, 'end': 1.29, 'start': 0.51, 'word': 'потапыч'}, {'conf': 0.939228, 'end': 2.31, 'start': 1.5, 'word': 'высчитывал'}, {'conf': 1.0, 'end': 2.88, 'start': 2.31057, 'word': 'каждый'}, {'conf': 1.0, 'end': 3.21, 'start': 2.88, 'word': 'новый'}, {'conf': 1.0, 'end': 3.72, 'start': 3.21, 'word': 'вершок'}, {'conf': 1.0, 'end': 4.53, 'start': 3.72, 'word': 'углубления'}, {'conf': 1.0, 'end': 4.95, 'start': 4.8, 'word': 'и'}, {'conf': 1.0, 'end': 5.43, 'start': 4.95, 'word': 'давно'}, {'conf': 1.0, 'end': 6.24, 'start': 5.46, 'word': 'определил'}, {'conf': 1.0, 'end': 6.45, 'start': 6.27, 'word': 'про'}, {'conf': 1.0, 'end': 6.96, 'start': 6.45, 'word': 'себя'}], 'text': 'родион потапыч высчитывал каждый новый вершок углубления и давно определил про себя'}
-    """
-    result_text = funct.inference("weights.pt", full_text)
+    print(rec.PartialResult())
+    # full_result = json.loads(rec.FinalResult())
+    print(full_result)
+    # full_text = full_result.pop("text")
+    result_text = predictor(full_result)
     requests.post("http://nginx/uploadText", data={"text": result_text, "filename": filename_ext, "extra_info": full_result})
     os.remove(f"/audio/{filename_ext}")
     return result_text
