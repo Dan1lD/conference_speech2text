@@ -26,19 +26,17 @@
         alert("охуеть! " + btoa(inputURL));
         if(inputURL != "") {
           encodedURL = btoa(inputURL);
-          url = "/uploadUrl"
+          url = "/uploadUrl?url=" + encodedURL;
           // Sending and receiving data in JSON format using POST method
           //
           var xhr = new XMLHttpRequest();
-          xhr.open("POST", url, true);
-          xhr.setRequestHeader("Content-Type", "application/json");
+          xhr.open("GET", url, true);
           xhr.onreadystatechange = function () {
             if (xhr.readyState === 4 && xhr.status === 200) {
               console.log(xhr.responseText);
             }
           };
-          var data = JSON.stringify({"url": encodedURL});
-          xhr.send(data);
+          xhr.send();
         }
       }
     }
