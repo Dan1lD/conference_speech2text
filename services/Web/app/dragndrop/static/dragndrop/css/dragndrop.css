@@ -7,6 +7,19 @@
   body {
     font-family: "Golos Text", Arial, Helvetica, sans-serif;
   }
+  .centered-text {
+    align-content: center;
+    color: #999;
+    text-align: center;
+  }
+  .input-url {
+    align-content: center;
+  }
+  .input-url input {
+    display: block;
+    margin: auto;
+    width: 306px !important;
+  }
 
   .note {
     width: 500px;
@@ -19,7 +32,7 @@
     border: 2px dashed #c22;
     border-radius: 20px;
     width: 500px;
-    margin: 50px auto;
+    margin: 1% auto;
     padding: 20px;
     -webkit-transition: all .5s ease;
     -moz-transition: all .5s ease;
