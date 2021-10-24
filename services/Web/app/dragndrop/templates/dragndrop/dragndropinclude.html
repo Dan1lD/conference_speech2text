@@ -17,7 +17,32 @@
 <p class="centered-text">или</p>
 
 <div class="input-url">
-  <input name="text" id="search-text" placeholder="https://sample.com/file" type="text" onkeyup="Find(event.keyCode);">
+  <input name="text" id="input-url-field" placeholder="https://sample.com/file" type="text"
+         onkeyup="UploadFileViaURL(event.keyCode);">
+  <script type="text/javascript">
+    function UploadFileViaURL(key) {
+      if(key == 13) {
+        let inputURL = document.getElementById('input-url-field').value;
+        alert("охуеть! " + btoa(inputURL));
+        if(inputURL != "") {
+          encodedURL = btoa(inputURL);
+          url = "/uploadUrl"
+          // Sending and receiving data in JSON format using POST method
+          //
+          var xhr = new XMLHttpRequest();
+          xhr.open("POST", url, true);
+          xhr.setRequestHeader("Content-Type", "application/json");
+          xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4 && xhr.status === 200) {
+              console.log(xhr.responseText);
+            }
+          };
+          var data = JSON.stringify({"url": encodedURL});
+          xhr.send(data);
+        }
+      }
+    }
+  </script>
 </div>
 
 <script>
