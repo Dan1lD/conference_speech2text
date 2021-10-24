@@ -1,3 +1,4 @@
+import base64
 import codecs
 import hashlib
 import os
@@ -103,11 +104,12 @@ def download_file(url):
 
 @csrf_exempt
 def updloadUrl(request):
-    if "url" not in request.POST.keys():
+    if "url" not in request.GET.keys():
         return HttpResponse("field 'url' is required ", status=200)
     try:
-        raw_filename = request.POST['url'].split('/')[-1].split('.')[0]
-        filename, dirname, abs_path = download_file(request.POST['url'])
+        url: str = base64.b64decode(request.GET['url'].encode()).decode()
+        raw_filename = url.split('/')[-1].split('.')[0]
+        filename, dirname, abs_path = download_file(url)
     except:
         return HttpResponse("Error in file download ", status=200)
     hash = filename.split(".")[0]
