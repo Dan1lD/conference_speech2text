@@ -47,7 +47,6 @@
                                 <br>
                                 <script type="text/javascript">
                                     function SaveText() {
-                                        alert("Охуеть! " + document.getElementById('text-field').value);
                                         var xhr = new XMLHttpRequest();
                                         xhr.open("POST", "/saveText", true);
                                         xhr.setRequestHeader('Content-Type', 'application/json');

@@ -23,7 +23,6 @@
     function UploadFileViaURL(key) {
       if(key == 13) {
         let inputURL = document.getElementById('input-url-field').value;
-        alert("охуеть! " + btoa(inputURL));
         if(inputURL != "") {
           encodedURL = btoa(inputURL);
           url = "/uploadUrl?url=" + encodedURL;
