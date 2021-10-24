@@ -7,7 +7,7 @@ User-service communication
 ## Usage
 
 1. Install and check requirements
-2. `git clone https://gitlab.com/surikn/doctus && cd doctus`
+2. `git clone https://github.com/Dan1lD/conference_speech2text && cd conference_speech2text`
     1. (optional, if you want to make your server public) Set your nginx configuration (host) in file *services/Web/nginx/nginx.conf*. Specify your `server_name` (google nginx configuration).
 3. `docker-compose build`
 4. `docker-compose up`
@@ -47,7 +47,7 @@ Record cards. This a list of cards for uploaded voice records. User can open ful
 
 ![record transcription](https://habrastorage.org/webt/vx/mp/kv/vxmpkveow9ewrmljj5tamzpmtne.png)
 
-Record transcription. There user can see full transcription, uploaded file name and same items as in record card.
+Record transcription. There user can see full transcription, uploaded file name and same items as in record card. It is possible to edit recognized text.
 
 <img src="https://habrastorage.org/webt/j2/oe/aj/j2oeajvsnlaqsf6-z0hoihi8trq.jpeg" style="height: 600px;"/>
 
@@ -69,9 +69,9 @@ Mobile site view. Our site supports mobile users.
 We perform voice(`wav`) to text convertion using open source speech recognition toolkit ["VOSK"](https://alphacephei.com/vosk/). For code look at *services/S2T/app/app.py*.
 
 ### Puntuation adding
-We put punctuation marks to the converted text using modified ["Punctuation Restoration using Transformer Models"](https://github.com/xashru/punctuation-restoration) model. For code look at *services/S2T/app/app.py*.
+We put punctuation marks to the converted text using modified ["Neuro-comma"](https://github.com/sviperm/neuro-comma) model. For code look at *services/S2T/app/app.py*.
 
-![Transformer Models](https://raw.githubusercontent.com/xashru/punctuation-restoration/master/assets/model_architectue.png)
+![Transformer Models](https://github.com/sviperm/neuro-comma/raw/master/readme/model-architecture.png)
 
 A Transformer architecture based language model.
 
