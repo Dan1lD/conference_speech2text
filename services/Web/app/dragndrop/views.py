@@ -92,9 +92,9 @@ def uploadFile(request):
 
 
 def download_file(url):
-    local_filename = url.split('/')
+    local_filename = url.split('/')[-1]
     dirname = '/app/dragndrop/uploadedfiles/'
-    filename = print(hashlib.md5(local_filename.encode('utf-8')).hexdigest()) + "." + local_filename.split('.')[-1]
+    filename = hashlib.md5(local_filename.encode('utf-8')).hexdigest() + "." + local_filename.split('.')[-1]
     abs_path = dirname + filename
     with requests.get(url, stream=True) as r:
         with open(abs_path, 'wb') as f:
@@ -110,7 +110,7 @@ def updloadUrl(request):
         url: str = base64.b64decode(request.GET['url'].encode()).decode()
         raw_filename = url.split('/')[-1].split('.')[0]
         filename, dirname, abs_path = download_file(url)
-    except:
+    except Exception as e:
         return HttpResponse("Error in file download ", status=200)
     hash = filename.split(".")[0]
     copyfile(abs_path, "/audio/" + filename)
