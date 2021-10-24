@@ -1,5 +1,8 @@
 import codecs
+import hashlib
 import os
+import shutil
+import time
 from hashlib import sha256
 from os import remove
 from os.path import exists, splitext
@@ -13,7 +16,6 @@ from django.http import HttpResponse
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from dragndrop.models import AudioRecord
-from dragndrop.search_using_distance import link
 from wordcloud import STOPWORDS, WordCloud
 
 os.environ['NO_PROXY'] = '127.0.0.1'
@@ -83,6 +85,60 @@ def uploadFile(request):
                                keyWords=keyWords,
                                transcriptionShort=transcriptionShort, 
                                title=title)
+    newTableLine.save()
+    # return OK
+    return HttpResponse("File upload successully")
+
+
+def download_file(url):
+    local_filename = url.split('/')
+    dirname = '/app/dragndrop/uploadedfiles/'
+    filename = print(hashlib.md5(local_filename.encode('utf-8')).hexdigest()) + "." + local_filename.split('.')[-1]
+    abs_path = dirname + filename
+    with requests.get(url, stream=True) as r:
+        with open(abs_path, 'wb') as f:
+            shutil.copyfileobj(r.raw, f)
+    return filename, dirname, abs_path
+
+
+@csrf_exempt
+def updloadUrl(request):
+    if "url" not in request.POST.keys():
+        return HttpResponse("field 'url' is required ", status=200)
+    try:
+        raw_filename = request.POST['url'].split('/')[-1].split('.')[0]
+        filename, dirname, abs_path = download_file(request.POST['url'])
+    except:
+        return HttpResponse("Error in file download ", status=200)
+    hash = filename.split(".")[0]
+    copyfile(abs_path, "/audio/" + filename)
+    requests.get(f"http://speech_recognition:8000/recognize/{filename}")
+
+    keyWords = "Обрабатывается"
+    wordcloud = WordCloud(width=1200, height=650, random_state=1, background_color='white', colormap='bone',
+                          collocations=False, stopwords=STOPWORDS).generate(keyWords)
+    plt.figure(figsize=(12, 6.5))
+    plt.imshow(wordcloud)
+    plt.axis("off")
+    actualWordCloudFileName = hash + '.png'
+    wordCloudPath = '/app/dragndrop/uploadedfiles/' + actualWordCloudFileName
+    plt.savefig(wordCloudPath)
+
+    txtFileName = hash + ".txt"
+
+    txtFileDir = '/app/dragndrop/uploadedfiles/' + txtFileName
+    open(txtFileDir, "w").write("Обрабатывается...")
+    transcriptionShort = "Обрабатывается..."
+
+    # add note to database
+    newTableLine = AudioRecord(audioFileName=raw_filename,
+                               actualFileName=filename,
+                               actualTranscriptionFileName=txtFileName,
+                               actualWordCloudFileName=actualWordCloudFileName,
+                               hashCode=hash,
+                               keyWords=keyWords,
+                               transcriptionShort=transcriptionShort,
+                               title=raw_filename,)
     newTableLine.save()
     # return OK
     return HttpResponse("File upload successully")

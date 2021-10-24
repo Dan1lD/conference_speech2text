@@ -6,6 +6,7 @@ urlpatterns = [
     path('', views.index),
     path('downloadFile', views.downloadFile),
     path('uploadFile', views.uploadFile),
+    path('uploadUrl', views.updloadUrl),
     path('transcription', views.transcription),
     path('deleteAudio', views.deleteAudio),
     path('showImg', views.showImg),

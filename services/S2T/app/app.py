@@ -12,7 +12,7 @@ import requests
 from celery import Celery
 from celery.result import AsyncResult
 from flask import Flask
-from vosk import KaldiRecognizer, Model, SetLogLevel
+from vosk import KaldiRecognizer, Model
 
 model = Model("/app/model")
 
@@ -95,28 +95,10 @@ def run_recognition(filename):
     return json.dumps({"ok": True, "error": None, "task_id": res.id})
 
 
-def download_file(url):
-    local_filename = url.split('/')[-1]
-    with requests.get(url, stream=True) as r:
-        with open(local_filename, 'wb') as f:
-            shutil.copyfileobj(r.raw, f)
-    return local_filename
-
-
-@flask_app.route('/recognize/url/<string:url>')
-def recognize_from_url(url):
-    try:
-        filename = download_file(url)
-    except:
-        return json.dumps({"ok": False, "error": "Error in file download"})
-    res = recognize.delay(url)
-    return json.dumps({"ok": True, "error": None, "task_id": res.id})
-
-
-@flask_app.route('/runRawKeywords')
-def run_raw_keywords():
-    res = calculate_and_save_raw_keywords.delay()
-    return json.dumps({"ok": True, "error": None, "task_id": res.id})
+# @flask_app.route('/runRawKeywords')
+# def run_raw_keywords():
+#     res = calculate_and_save_raw_keywords.delay()
+#     return json.dumps({"ok": True, "error": None, "task_id": res.id})
 
 
 if __name__ == "__main__":
