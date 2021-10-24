@@ -43,17 +43,27 @@ flask_app.config.update(
 celery = make_celery(flask_app)
 
 
+def convert_with_command(ffmpeg_command, fn, filename_ext):
+    """ffmpeg_command should convert to wav and save in /audio/wav/{fn}.wav"""
+    os.system(ffmpeg_command)
+    os.remove(f"/audio/{filename_ext}")
+    os.system(
+        f"ffmpeg -i /audio/wav/{fn}.wav -acodec pcm_s16le -ac 1 -ar 16000 /audio/wav/{fn}_normalized.wav -y -af 'apad=pad_dur=10'")
+    os.remove(f"/audio/wav/{fn}.wav")
+    return "/audio/wav/{fn}_normalized.wav"
+
+
 @celery.task(name="tasks.recognize")
 def recognize(filename_ext):
     fn = filename_ext.split('.')[0]
-    if filename_ext.split('.')[-1] == "mp4":
-        os.system(f"ffmpeg -i /audio/{filename_ext} -vn -acodec libmp3lame -ac 2 -ab 160k -ar 48000 /audio/{fn}.mp3")
-        os.remove(f"/audio/{filename_ext}")
-        filename_ext = fn + ".mp3"
-    os.system(
-        f"ffmpeg -i /audio/{filename_ext} -acodec pcm_s16le -ac 1 -ar 16000 /audio/wav/{fn}.wav -y -af 'apad=pad_dur=10'")
+    if filename_ext.split('.')[-1].lower() in ("mp4", "mp3", "ogg", "ape", "aiff"):
+        path_wav = convert_with_command(f"ffmpeg -i /audio/{filename_ext} /audio/wav/{fn}.wav", fn, filename_ext)
+    else:
+        os.system(
+            f"ffmpeg -i /audio/{filename_ext} -acodec pcm_s16le -ac 1 -ar 16000 /audio/wav/{fn}_normalized.wav -y -af 'apad=pad_dur=10'")
+        path_wav = f"/audio/wav/{fn}_normalized.wav"
 
-    wf = wave.open(f'/audio/wav/{fn}.wav', "rb")
+    wf = wave.open(path_wav, "rb")
     if wf.getnchannels() != 1 or wf.getsampwidth() != 2 or wf.getcomptype() != "NONE":
         return json.dumps({"ok": False, "error": "Audio file must be WAV format mono PCM."})
 

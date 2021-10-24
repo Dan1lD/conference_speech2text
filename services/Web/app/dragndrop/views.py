@@ -42,9 +42,6 @@ def index(request):
 @csrf_exempt
 def uploadFile(request):
     file = request.FILES['file']
-    # check if file is wav 
-    if splitext(file.name)[1] != ".wav":
-        return HttpResponse("Error 403: file is not .wav.", status=403)
     # calculate hashCode
     fileBytes = file.read()
     hashCode = sha256(fileBytes).hexdigest()
